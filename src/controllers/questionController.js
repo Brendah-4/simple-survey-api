@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 exports.listQuestions = async (req, res) => {
   try {
-    const surveyId = req.query.survey_id;
+    const surveyId = req.params.surveyId || req.query.survey_id;
     let query = `
       SELECT q.*,
         GROUP_CONCAT(DISTINCT CONCAT(qo.id,':',qo.label,':',qo.value,':',qo.sort_order) ORDER BY qo.sort_order SEPARATOR '|') AS options_raw,
@@ -51,8 +51,9 @@ exports.getQuestion = async (req, res) => {
 };
 
 exports.createQuestion = async (req, res) => {
-  const { survey_id, type, title, description, required, sort_order } = req.body;
-  if (!survey_id || !type || !title) return res.xmlError('survey_id, type, and title are required');
+  const surveyId = req.params.surveyId || req.body.survey_id;
+  const { type, title, description, required, sort_order } = req.body;
+  if (!surveyId || !type || !title) return res.xmlError('survey_id, type, and title are required');
 
   const options = parseBodyJson(req.body.options);
   const choice_config = parseBodyJson(req.body.choice_config);
@@ -64,7 +65,7 @@ exports.createQuestion = async (req, res) => {
 
     const [result] = await conn.query(
       'INSERT INTO questions (survey_id, type, title, description, required, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
-      [survey_id, type, title, description || null, required ? 1 : 0, sort_order || 0]
+      [surveyId, type, title, description || null, required ? 1 : 0, sort_order || 0]
     );
     const questionId = result.insertId;
 

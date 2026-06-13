@@ -17,6 +17,24 @@ exports.downloadCertificate = async (req, res) => {
   }
 };
 
+exports.downloadCertificateById = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      'SELECT file_path, original_name, mime_type FROM response_answer_files WHERE id = ?',
+      [req.params.id]
+    );
+    if (!rows.length) return res.xmlError('Certificate not found', 404);
+
+    const { file_path, original_name, mime_type } = rows[0];
+    if (!fs.existsSync(file_path)) return res.xmlError('Certificate file missing on server', 404);
+
+    res.setHeader('Content-Type', mime_type || 'application/pdf');
+    res.download(file_path, original_name);
+  } catch (err) {
+    res.xmlError(err.message, 500);
+  }
+};
+
 exports.downloadUploadedFile = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT file_path, original_name, mime_type FROM response_answer_files WHERE id = ?', [req.params.fileId]);

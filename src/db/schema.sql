@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS simple_survey;
-USE simple_survey;
+CREATE DATABASE IF NOT EXISTS sky_survey_db;
+USE sky_survey_db;
 
 CREATE TABLE IF NOT EXISTS surveys (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS surveys (
 CREATE TABLE IF NOT EXISTS questions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   survey_id INT NOT NULL,
-  type ENUM('text', 'textarea', 'multiple_choice', 'checkbox', 'rating', 'file') NOT NULL,
+  type ENUM('text', 'textarea', 'email', 'multiple_choice', 'checkbox', 'rating', 'file') NOT NULL,
   title VARCHAR(500) NOT NULL,
   description TEXT,
   required TINYINT(1) DEFAULT 0,

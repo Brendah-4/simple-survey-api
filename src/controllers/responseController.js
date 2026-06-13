@@ -5,17 +5,33 @@ const fs = require('fs');
 
 exports.listResponses = async (req, res) => {
   try {
-    const surveyId = req.query.survey_id;
-    let query = `
-      SELECT r.*, s.title AS survey_title
-      FROM responses r
-      JOIN surveys s ON s.id = r.survey_id
-    `;
-    const params = [];
-    if (surveyId) { query += ' WHERE r.survey_id = ?'; params.push(surveyId); }
-    query += ' ORDER BY r.submitted_at DESC';
+    const surveyId = req.params.surveyId || req.query.survey_id;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize) || 10));
+    const email = req.query.email ? req.query.email.trim() : null;
+    const offset = (page - 1) * pageSize;
 
-    const [responses] = await db.query(query, params);
+    const conditions = [];
+    const params = [];
+
+    if (surveyId) { conditions.push('r.survey_id = ?'); params.push(surveyId); }
+    if (email) { conditions.push('ra_email.answer_text LIKE ?'); params.push(`%${email}%`); }
+
+    const joinEmail = email
+      ? 'JOIN response_answers ra_email ON ra_email.response_id = r.id JOIN questions q_email ON q_email.id = ra_email.question_id AND q_email.type = \'email\''
+      : '';
+
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+
+    const [[{ total }]] = await db.query(
+      `SELECT COUNT(DISTINCT r.id) as total FROM responses r ${joinEmail} ${where}`,
+      params
+    );
+
+    const [responses] = await db.query(
+      `SELECT DISTINCT r.* FROM responses r ${joinEmail} ${where} ORDER BY r.submitted_at DESC LIMIT ? OFFSET ?`,
+      [...params, pageSize, offset]
+    );
 
     for (const resp of responses) {
       const [answers] = await db.query(
@@ -26,7 +42,7 @@ exports.listResponses = async (req, res) => {
       );
       for (const ans of answers) {
         const [files] = await db.query(
-          'SELECT id, original_name, mime_type, file_path FROM response_answer_files WHERE response_answer_id = ?',
+          'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
           [ans.id]
         );
         ans.files = files;
@@ -34,7 +50,11 @@ exports.listResponses = async (req, res) => {
       resp.answers = answers;
     }
 
-    res.xmlSuccess({ responses });
+    const lastPage = Math.max(1, Math.ceil(total / pageSize));
+    res.xmlSuccess({
+      meta: { current_page: page, last_page: lastPage, page_size: pageSize, total_count: total },
+      responses,
+    });
   } catch (err) {
     res.xmlError(err.message, 500);
   }
@@ -57,7 +77,7 @@ exports.getResponse = async (req, res) => {
     );
     for (const ans of answers) {
       const [files] = await db.query(
-        'SELECT id, original_name, mime_type, file_path FROM response_answer_files WHERE response_answer_id = ?',
+        'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
         [ans.id]
       );
       ans.files = files;
@@ -71,8 +91,8 @@ exports.getResponse = async (req, res) => {
 };
 
 exports.submitResponse = async (req, res) => {
-  const { survey_id } = req.body;
-  if (!survey_id) return res.xmlError('survey_id is required');
+  const surveyId = req.params.surveyId || req.body.survey_id;
+  if (!surveyId) return res.xmlError('survey_id is required');
 
   let parsedAnswers;
   try {
@@ -82,6 +102,7 @@ exports.submitResponse = async (req, res) => {
     return res.xmlError('answers must be valid JSON');
   }
   if (!Array.isArray(parsedAnswers)) return res.xmlError('answers must be an array');
+
   const respondentUuid = uuidv4();
   const conn = await db.getConnection();
 
@@ -90,7 +111,7 @@ exports.submitResponse = async (req, res) => {
 
     const [result] = await conn.query(
       'INSERT INTO responses (survey_id, respondent_uuid) VALUES (?, ?)',
-      [survey_id, respondentUuid]
+      [surveyId, respondentUuid]
     );
     const responseId = result.insertId;
 
@@ -120,7 +141,7 @@ exports.submitResponse = async (req, res) => {
       }
     }
 
-    const certificatePath = await generateCertificate(responseId, respondentUuid, survey_id);
+    const certificatePath = await generateCertificate(responseId, respondentUuid, surveyId);
     await conn.query('UPDATE responses SET certificate_path = ? WHERE id = ?', [certificatePath, responseId]);
 
     await conn.commit();

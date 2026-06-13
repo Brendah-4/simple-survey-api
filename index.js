@@ -7,6 +7,7 @@ const surveyRoutes = require('./src/routes/surveys');
 const questionRoutes = require('./src/routes/questions');
 const responseRoutes = require('./src/routes/responses');
 const fileRoutes = require('./src/routes/files');
+const { downloadCertificateById } = require('./src/controllers/fileController');
 const xmlResponse = require('./src/middleware/xmlResponse');
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api/surveys', surveyRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/responses', responseRoutes);
 app.use('/api/files', fileRoutes);
+app.get('/api/certificates/:id', downloadCertificateById);
 
 app.use((req, res) => {
   res.status(404).xmlError('Route not found');
