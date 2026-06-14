@@ -2,7 +2,13 @@
 
 REST API for the Simple Survey platform — built with **Node.js**, **Express**, and **MySQL**. All responses are returned in **XML** format.
 
-## Tech Stack
+## Prerequisites
+
+- Node.js v18 or higher
+- MySQL 8.0 or higher
+- npm
+
+## Technologies Used
 
 - Node.js + Express
 - MySQL (hosted on Railway)
@@ -90,3 +96,13 @@ See [ERD.md](ERD.md) for the full entity relationship diagram.
 ## Postman Collection
 
 Import `postman_collection.json` into Postman to test all endpoints.
+
+## Assumptions Made
+
+- No authentication or role-based access control is implemented. All endpoints are publicly accessible as the spec did not require it.
+- Survey status values are `draft`, `published`, and `closed`. A survey must be set to `published` for it to appear in the available surveys list.
+- The `email` question type was added in addition to the spec's listed types to support email-based response filtering.
+- The `rating` question type was added as an extra feature beyond the spec requirements.
+- File uploads are stored on the Railway server filesystem. In a production system these would be stored on cloud storage (e.g. AWS S3).
+- Certificates are auto-generated as PDFs upon response submission using the pdfkit library.
+- Pagination defaults to page 1 with 10 results per page if not specified in the query string.
