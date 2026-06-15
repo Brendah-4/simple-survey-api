@@ -25,7 +25,7 @@ app.use('/api/files', fileRoutes);
 app.get('/api/certificates/:id', downloadCertificateById);
 
 app.use((req, res) => {
-  res.status(404).xmlError('Route not found');
+  res.status(404).xmlError('The Route is not found');
 });
 
 app.use((err, req, res, next) => {
