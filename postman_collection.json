@@ -1,0 +1,228 @@
+{
+  "info": {
+    "name": "Simple Survey API",
+    "description": "Sky World Limited — Survey Platform API. All responses are in XML format.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://simple-survey-api-production.up.railway.app/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Surveys",
+      "item": [
+        {
+          "name": "List Surveys",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/surveys",
+            "description": "Returns a list of all surveys."
+          }
+        },
+        {
+          "name": "Get Survey",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/surveys/1",
+            "description": "Returns a single survey by ID."
+          }
+        },
+        {
+          "name": "Create Survey",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/surveys",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "title", "value": "Customer Satisfaction Survey" },
+                { "key": "description", "value": "Tell us how we're doing" },
+                { "key": "status", "value": "active" }
+              ]
+            },
+            "description": "Creates a new survey."
+          }
+        },
+        {
+          "name": "Update Survey",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/surveys/1",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "title", "value": "Updated Survey Title" },
+                { "key": "status", "value": "active" }
+              ]
+            },
+            "description": "Updates an existing survey."
+          }
+        },
+        {
+          "name": "Delete Survey",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/surveys/1",
+            "description": "Deletes a survey and all related data."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "List Questions for Survey",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/surveys/1/questions",
+            "description": "Returns all questions for a given survey."
+          }
+        },
+        {
+          "name": "Create Question",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/surveys/1/questions",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "type", "value": "email" },
+                { "key": "title", "value": "What is your email address?" },
+                { "key": "description", "value": "We'll use this to send you updates" },
+                { "key": "required", "value": "1" },
+                { "key": "sort_order", "value": "1" }
+              ]
+            },
+            "description": "Creates a new question for a survey. Types: text, textarea, email, multiple_choice, checkbox, rating, file."
+          }
+        },
+        {
+          "name": "Create Multiple Choice Question",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/surveys/1/questions",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "type", "value": "multiple_choice" },
+                { "key": "title", "value": "How did you hear about us?" },
+                { "key": "required", "value": "1" },
+                { "key": "sort_order", "value": "2" },
+                { "key": "options", "value": "[{\"label\":\"Social Media\",\"value\":\"social\"},{\"label\":\"Friend\",\"value\":\"friend\"},{\"label\":\"Search Engine\",\"value\":\"search\"}]" },
+                { "key": "choice_config", "value": "{\"min_selections\":1,\"max_selections\":1,\"allow_other\":false}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/questions/1",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "title", "value": "Updated question title" },
+                { "key": "required", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/questions/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Responses",
+      "item": [
+        {
+          "name": "List Responses (paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/surveys/1/responses?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["surveys", "1", "responses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            },
+            "description": "Returns paginated responses for a survey."
+          }
+        },
+        {
+          "name": "Filter Responses by Email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/surveys/1/responses?email=user@example.com&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["surveys", "1", "responses"],
+              "query": [
+                { "key": "email", "value": "user@example.com" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            },
+            "description": "Returns responses filtered by the email provided in an email-type question."
+          }
+        },
+        {
+          "name": "Submit Response",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/surveys/1/responses",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "answers",
+                  "value": "[{\"question_id\":1,\"answer_text\":\"respondent@example.com\"},{\"question_id\":2,\"answer_text\":\"social\"}]",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Submits answers for a survey. Send answers as JSON array in 'answers' field. Files go in file_<question_id> fields."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Certificates / Files",
+      "item": [
+        {
+          "name": "Download Certificate by Response",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/files/certificate/1",
+            "description": "Downloads the certificate file for a given response ID."
+          }
+        },
+        {
+          "name": "Download Uploaded File by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/certificates/1",
+            "description": "Downloads an uploaded file by response_answer_files.id."
+          }
+        }
+      ]
+    }
+  ]
+}
