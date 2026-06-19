@@ -1,5 +1,4 @@
 const mysql = require('mysql2/promise');
-
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
@@ -8,6 +7,8 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'simple_survey',
   waitForConnections: true,
   connectionLimit: 10,
+  ssl: {
+    rejectUnauthorized: true
+  }
 });
-
 module.exports = pool;
