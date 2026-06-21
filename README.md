@@ -19,7 +19,7 @@ REST API for the Simple Survey platform — built with **Node.js**, **Express**,
 ## Live API
 
 ```
-https://simple-survey-api-production.up.render.app/api
+https://simple-survey-api-c3kj.onrender.com
 ```
 
 ## Getting Started
