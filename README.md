@@ -11,7 +11,7 @@ REST API for the Simple Survey platform — built with **Node.js**, **Express**,
 ## Technologies Used
 
 - Node.js + Express
-- MySQL (hosted on Railway)
+- MySQL (hosted on Render)
 - `xmlbuilder2` for XML responses
 - `multer` for file uploads
 - `mysql2/promise` connection pool
@@ -19,13 +19,13 @@ REST API for the Simple Survey platform — built with **Node.js**, **Express**,
 ## Live API
 
 ```
-https://simple-survey-api-production.up.railway.app/api
+https://simple-survey-api-production.up.render.app/api
 ```
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/symonmwangi/simple-survey-api.git
+git clone https://github.com/brendah-4/simple-survey-api.git
 cd simple-survey-api
 npm install
 cp .env.example .env   # fill in your DB credentials
