@@ -103,6 +103,6 @@ Import `postman_collection.json` into Postman to test all endpoints.
 - Survey status values are `draft`, `published`, and `closed`. A survey must be set to `published` for it to appear in the available surveys list.
 - The `email` question type was added in addition to the spec's listed types to support email-based response filtering.
 - The `rating` question type was added as an extra feature beyond the spec requirements.
-- File uploads are stored on the Railway server filesystem. In a production system these would be stored on cloud storage (e.g. AWS S3).
+- File uploads are stored on the Render server filesystem. In a production system these would be stored on cloud storage (e.g. AWS S3).
 - Certificates are auto-generated as PDFs upon response submission using the pdfkit library.
 - Pagination defaults to page 1 with 10 results per page if not specified in the query string.
