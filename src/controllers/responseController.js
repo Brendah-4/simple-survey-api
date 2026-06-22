@@ -1,7 +1,12 @@
 const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.listResponses = async (req, res) => {
   try {
@@ -42,7 +47,7 @@ exports.listResponses = async (req, res) => {
       );
       for (const ans of answers) {
         const [files] = await db.query(
-          'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
+          'SELECT id, original_name, mime_type, file_url FROM response_answer_files WHERE response_answer_id = ?',
           [ans.id]
         );
         ans.files = files;
@@ -77,7 +82,7 @@ exports.getResponse = async (req, res) => {
     );
     for (const ans of answers) {
       const [files] = await db.query(
-        'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
+        'SELECT id, original_name, mime_type, file_url FROM response_answer_files WHERE response_answer_id = ?',
         [ans.id]
       );
       ans.files = files;
@@ -133,21 +138,23 @@ exports.submitResponse = async (req, res) => {
       const fieldName = `file_${question_id}`;
       if (filesByField[fieldName]) {
         for (const file of filesByField[fieldName]) {
+          // file.path is now the Cloudinary URL
+          // file.filename is the Cloudinary public_id
           await conn.query(
-            'INSERT INTO response_answer_files (response_answer_id, file_path, original_name, mime_type) VALUES (?, ?, ?, ?)',
-            [ansId, file.path, file.originalname, file.mimetype]
+            'INSERT INTO response_answer_files (response_answer_id, file_url, public_id, original_name, mime_type) VALUES (?, ?, ?, ?, ?)',
+            [ansId, file.path, file.filename, file.originalname, file.mimetype]
           );
         }
       }
     }
 
-    const certificatePath = await generateCertificate(responseId, respondentUuid, surveyId);
-    await conn.query('UPDATE responses SET certificate_path = ? WHERE id = ?', [certificatePath, responseId]);
+    const certificateUrl = await generateCertificate(responseId, respondentUuid, surveyId);
+    await conn.query('UPDATE responses SET certificate_path = ? WHERE id = ?', [certificateUrl, responseId]);
 
     await conn.commit();
     conn.release();
 
-    res.xmlSuccess({ response_id: responseId, respondent_uuid: respondentUuid, certificate_path: certificatePath }, 201);
+    res.xmlSuccess({ response_id: responseId, respondent_uuid: respondentUuid, certificate_url: certificateUrl }, 201);
   } catch (err) {
     await conn.rollback();
     conn.release();
@@ -156,11 +163,27 @@ exports.submitResponse = async (req, res) => {
 };
 
 async function generateCertificate(responseId, uuid, surveyId) {
-  const dir = path.join(process.env.UPLOAD_DIR || 'uploads', 'certificates');
-  fs.mkdirSync(dir, { recursive: true });
-  const filename = `certificate_${responseId}_${uuid}.txt`;
-  const filePath = path.join(dir, filename);
   const content = `Survey Completion Certificate\nSurvey ID: ${surveyId}\nResponse ID: ${responseId}\nUUID: ${uuid}\nDate: ${new Date().toISOString()}`;
-  fs.writeFileSync(filePath, content);
-  return filePath;
+
+  // Upload certificate text file to Cloudinary as a raw file
+  const result = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'sky-survey/certificates',
+        public_id: `certificate_${responseId}_${uuid}`,
+        resource_type: 'raw',
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    const { Readable } = require('stream');
+    const readable = new Readable();
+    readable.push(content);
+    readable.push(null);
+    readable.pipe(stream);
+  });
+
+  return result.secure_url;
 }
