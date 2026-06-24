@@ -71,17 +71,9 @@ CREATE TABLE IF NOT EXISTS response_answers (
 CREATE TABLE IF NOT EXISTS response_answer_files (
   id INT AUTO_INCREMENT PRIMARY KEY,
   response_answer_id INT NOT NULL,
-<<<<<<< HEAD
   file_url VARCHAR(1000) NOT NULL,
   public_id VARCHAR(500),
   original_name VARCHAR(255) NOT NULL,
   mime_type VARCHAR(100),
   FOREIGN KEY (response_answer_id) REFERENCES response_answers(id) ON DELETE CASCADE
 );
-=======
-  file_path VARCHAR(500) NOT NULL,
-  original_name VARCHAR(255) NOT NULL,
-  mime_type VARCHAR(100),
-  FOREIGN KEY (response_answer_id) REFERENCES response_answers(id) ON DELETE CASCADE
-);
->>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
