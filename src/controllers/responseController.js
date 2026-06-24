@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
+<<<<<<< HEAD
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -7,6 +8,10 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+=======
+const path = require('path');
+const fs = require('fs');
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
 
 exports.listResponses = async (req, res) => {
   try {
@@ -38,6 +43,11 @@ exports.listResponses = async (req, res) => {
       [...params, pageSize, offset]
     );
 
+<<<<<<< HEAD
+=======
+    console.log('DEBUG total:', total, '| responses.length:', responses.length, '| responses:', JSON.stringify(responses));
+
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
     for (const resp of responses) {
       const [answers] = await db.query(
         `SELECT ra.*, q.title AS question_title, q.type AS question_type
@@ -47,7 +57,11 @@ exports.listResponses = async (req, res) => {
       );
       for (const ans of answers) {
         const [files] = await db.query(
+<<<<<<< HEAD
           'SELECT id, original_name, mime_type, file_url FROM response_answer_files WHERE response_answer_id = ?',
+=======
+          'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
           [ans.id]
         );
         ans.files = files;
@@ -82,7 +96,11 @@ exports.getResponse = async (req, res) => {
     );
     for (const ans of answers) {
       const [files] = await db.query(
+<<<<<<< HEAD
         'SELECT id, original_name, mime_type, file_url FROM response_answer_files WHERE response_answer_id = ?',
+=======
+        'SELECT id, original_name, mime_type FROM response_answer_files WHERE response_answer_id = ?',
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
         [ans.id]
       );
       ans.files = files;
@@ -138,23 +156,38 @@ exports.submitResponse = async (req, res) => {
       const fieldName = `file_${question_id}`;
       if (filesByField[fieldName]) {
         for (const file of filesByField[fieldName]) {
+<<<<<<< HEAD
           // file.path is now the Cloudinary URL
           // file.filename is the Cloudinary public_id
           await conn.query(
             'INSERT INTO response_answer_files (response_answer_id, file_url, public_id, original_name, mime_type) VALUES (?, ?, ?, ?, ?)',
             [ansId, file.path, file.filename, file.originalname, file.mimetype]
+=======
+          await conn.query(
+            'INSERT INTO response_answer_files (response_answer_id, file_path, original_name, mime_type) VALUES (?, ?, ?, ?)',
+            [ansId, file.path, file.originalname, file.mimetype]
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
           );
         }
       }
     }
 
+<<<<<<< HEAD
     const certificateUrl = await generateCertificate(responseId, respondentUuid, surveyId);
     await conn.query('UPDATE responses SET certificate_path = ? WHERE id = ?', [certificateUrl, responseId]);
+=======
+    const certificatePath = await generateCertificate(responseId, respondentUuid, surveyId);
+    await conn.query('UPDATE responses SET certificate_path = ? WHERE id = ?', [certificatePath, responseId]);
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
 
     await conn.commit();
     conn.release();
 
+<<<<<<< HEAD
     res.xmlSuccess({ response_id: responseId, respondent_uuid: respondentUuid, certificate_url: certificateUrl }, 201);
+=======
+    res.xmlSuccess({ response_id: responseId, respondent_uuid: respondentUuid, certificate_path: certificatePath }, 201);
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
   } catch (err) {
     await conn.rollback();
     conn.release();
@@ -163,6 +196,7 @@ exports.submitResponse = async (req, res) => {
 };
 
 async function generateCertificate(responseId, uuid, surveyId) {
+<<<<<<< HEAD
   const content = `Survey Completion Certificate\nSurvey ID: ${surveyId}\nResponse ID: ${responseId}\nUUID: ${uuid}\nDate: ${new Date().toISOString()}`;
 
   // Upload certificate text file to Cloudinary as a raw file
@@ -187,3 +221,13 @@ async function generateCertificate(responseId, uuid, surveyId) {
 
   return result.secure_url;
 }
+=======
+  const dir = path.join(process.env.UPLOAD_DIR || 'uploads', 'certificates');
+  fs.mkdirSync(dir, { recursive: true });
+  const filename = `certificate_${responseId}_${uuid}.txt`;
+  const filePath = path.join(dir, filename);
+  const content = `Survey Completion Certificate\nSurvey ID: ${surveyId}\nResponse ID: ${responseId}\nUUID: ${uuid}\nDate: ${new Date().toISOString()}`;
+  fs.writeFileSync(filePath, content);
+  return filePath;
+}
+>>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
