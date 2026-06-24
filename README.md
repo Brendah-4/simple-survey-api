@@ -11,11 +11,7 @@ REST API for the Simple Survey platform — built with **Node.js**, **Express**,
 ## Technologies Used
 
 - Node.js + Express
-<<<<<<< HEAD
 - MySQL (hosted on Railway)
-=======
-- MySQL (hosted on Render)
->>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
 - `xmlbuilder2` for XML responses
 - `multer` for file uploads
 - `mysql2/promise` connection pool
@@ -23,21 +19,13 @@ REST API for the Simple Survey platform — built with **Node.js**, **Express**,
 ## Live API
 
 ```
-<<<<<<< HEAD
 https://simple-survey-api-production.up.railway.app/api
-=======
-https://simple-survey-api-c3kj.onrender.com
->>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
 ```
 
 ## Getting Started
 
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/symonmwangi/simple-survey-api.git
-=======
-git clone https://github.com/brendah-4/simple-survey-api.git
->>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
+git clone https://github.com/simonmwangiwaweru/simple-survey-api.git
 cd simple-survey-api
 npm install
 cp .env.example .env   # fill in your DB credentials
@@ -115,10 +103,6 @@ Import `postman_collection.json` into Postman to test all endpoints.
 - Survey status values are `draft`, `published`, and `closed`. A survey must be set to `published` for it to appear in the available surveys list.
 - The `email` question type was added in addition to the spec's listed types to support email-based response filtering.
 - The `rating` question type was added as an extra feature beyond the spec requirements.
-<<<<<<< HEAD
 - File uploads are stored on the Railway server filesystem. In a production system these would be stored on cloud storage (e.g. AWS S3).
-=======
-- File uploads are stored on the Render server filesystem. In a production system these would be stored on cloud storage (e.g. AWS S3).
->>>>>>> 7aa7e868812127e2898c9e42cf90deabd59fd0f4
 - Certificates are auto-generated as PDFs upon response submission using the pdfkit library.
 - Pagination defaults to page 1 with 10 results per page if not specified in the query string.
