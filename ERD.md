@@ -8,7 +8,7 @@
 | id | INT PK AUTO_INCREMENT | |
 | title | VARCHAR(255) | NOT NULL |
 | description | TEXT | |
-| status | ENUM('draft','active','closed') | DEFAULT 'draft' |
+| status | ENUM('draft','published','closed') | DEFAULT 'draft' |
 | created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | ON UPDATE CURRENT_TIMESTAMP |
 
